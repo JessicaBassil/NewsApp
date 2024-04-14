@@ -5,6 +5,7 @@ import React from "react";
 import { PreferencesContext } from "./context/PreferencesContext";
 import NavTabs from "./nav/NavTabs";
 import useTheme from "./hooks/UseTheme";
+import ArticleScreen from "./screens/ArticleScreen";
 
 const Stack = createStackNavigator();
 
@@ -19,6 +20,7 @@ export default function App() {
             <Stack.Screen name="News" options={{ headerShown: true }}>
               {(props) => <NavTabs {...props} />}
             </Stack.Screen>
+            <Stack.Screen name="Article" component={ArticleScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </PaperProvider>
