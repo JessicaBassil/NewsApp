@@ -1,20 +1,27 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { PaperProvider } from "react-native-paper";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import React from "react";
+import { PreferencesContext } from "./context/PreferencesContext";
+import NavTabs from "./nav/NavTabs";
+import useTheme from "./hooks/UseTheme";
+
+const Stack = createStackNavigator();
 
 export default function App() {
+  const { preferences, setPreferences, theme } = useTheme();
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <PreferencesContext.Provider value={{ ...preferences, setPreferences }}>
+      <PaperProvider theme={theme}>
+        <NavigationContainer theme={theme}>
+          <Stack.Navigator>
+            <Stack.Screen name="News" options={{ headerShown: true }}>
+              {(props) => <NavTabs {...props} />}
+            </Stack.Screen>
+          </Stack.Navigator>
+        </NavigationContainer>
+      </PaperProvider>
+    </PreferencesContext.Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
