@@ -1,14 +1,25 @@
-import { Button, Card, Chip, Text } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Button,
+  Card,
+  Chip,
+  Snackbar,
+  Text,
+} from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { data } from "../data";
+// import { data } from "../data";
 import { ScrollView } from "react-native-gesture-handler";
 import { Linking, View } from "react-native";
 import formatDate from "../utils/formatDate";
 import { useNavigation } from "@react-navigation/native";
 import { useEffect, useState } from "react";
+import { getArticles } from "../utils/serverCalls";
 
 const HomeScreen = ({ route }) => {
   const { query } = route.params ?? { params: {} };
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState();
 
   const [activeQuery, setActiveQuery] = useState();
   const navigation = useNavigation();
@@ -30,6 +41,34 @@ const HomeScreen = ({ route }) => {
   const changeActiveQuery = (query) => {
     setActiveQuery(query);
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const articles = await getArticles(activeQuery);
+        if (articles) setData(articles);
+        setLoading(false);
+        setError();
+      } catch (err) {
+        setError("Sorry, Error Occurred With Code " + err.response?.status);
+        setLoading(false);
+        console.log(err);
+      }
+    };
+
+    fetchData();
+  }, [activeQuery]);
+
+  if (loading) {
+    return (
+      <SafeAreaView
+        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+      >
+        <ActivityIndicator animating={true} size="large" />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView>
@@ -58,7 +97,7 @@ const HomeScreen = ({ route }) => {
           </View>
         </ScrollView>
 
-        {data.articles.map((article, index) => (
+        {data.map((article, index) => (
           <Card style={{ marginBottom: 20 }} key={index}>
             <Card.Title
               title={article.source.name}
@@ -94,6 +133,18 @@ const HomeScreen = ({ route }) => {
           </Card>
         ))}
       </ScrollView>
+      <Snackbar
+        onDismiss={() => {}}
+        action={{
+          label: "close",
+          onPress: () => {
+            setError();
+          },
+        }}
+        visible={error ? true : false}
+      >
+        {error + ""}
+      </Snackbar>
     </SafeAreaView>
   );
 };
